@@ -2,7 +2,7 @@ name := """play-with-graalvm"""
 
 version := "1.0-SNAPSHOT"
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala, GraalVMNativeImagePlugin)
+lazy val root = (project in file(".")).enablePlugins(PlayScala, GraalVMNativeImagePlugin).disablePlugins(PlayLayoutPlugin)
 
 scalaVersion := "2.12.10"
 

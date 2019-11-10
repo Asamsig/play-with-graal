@@ -1,19 +1,15 @@
-package wiring
-
 import java.util.concurrent.atomic.AtomicInteger
 
-import org.graalvm.polyglot.{Context, Source}
 import akka.stream.Materializer
-import play.api.mvc._
-
-import scala.concurrent.ExecutionContext
+import org.graalvm.polyglot.{Context, Source}
 import play.api.ApplicationLoader.{Context => PlayContext}
 import play.api._
 import play.api.mvc.Results._
+import play.api.mvc._
 import play.api.routing.Router
 import play.api.routing.sird._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
 
 class AppComponents(playContext: PlayContext) extends BuiltInComponentsFromContext(playContext) with NoHttpFiltersComponents {

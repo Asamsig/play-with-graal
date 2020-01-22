@@ -22,6 +22,12 @@ Render a graph through R, in a running Scala Play Application.
 
 - Handle multithreading
 - Native image
+- Play with Graal-Cuda stuff
+- Server Side Render React code
+
+#### Native Image
+- Generate config files with `sbt run -J-agentlib:native-image-agent=config-output-dir=native-image-conf`
+- 
 
 
 

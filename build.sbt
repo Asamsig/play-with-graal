@@ -1,16 +1,46 @@
+val graalConfigurationDirectory = settingKey[File]("The directory where Graal configuration lives")
+val graalResourcesConfiguration = settingKey[File]("The file for Graal's resource-config.json")
+
 name := """play-with-graalvm"""
 
 version := "1.0-SNAPSHOT"
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala, GraalVMNativeImagePlugin).disablePlugins(PlayLayoutPlugin)
+val graalSettings = Seq(
+  graalConfigurationDirectory := (Compile / resourceDirectory).value / "graal",
+  graalResourcesConfiguration := graalConfigurationDirectory.value / "resource-config.json",
+  graalVMNativeImageOptions ++= Seq(
+    "--no-fallback",
+    "--allow-incomplete-classpath",
+//    "-H:Log=registerResource:verbose", // log which resources get included into the image
+    "-H:ResourceConfigurationFiles=" + graalResourcesConfiguration.value.getAbsolutePath,
+    "--report-unsupported-elements-at-runtime",
+//    "-H:+ReportExceptionStackTraces",
+//    "-H:Log=registerResource",
+//    "-H:ConfigurationFileDirectories=" + baseDirectory.value / "graal",
+    "--initialize-at-build-time",
+//    "--initialize-at-build-time=AppLoader",
+    "--initialize-at-run-time=" +
+      "com.typesafe.config.impl.ConfigImpl$EnvVariablesHolder," +
+      "com.typesafe.config.impl.ConfigImpl$SystemPropertiesHolder",
+    "--verbose-server",
+    "--language:R"
+  )
+)
+
+lazy val root = (project in file("."))
+  .enablePlugins(PlayScala, GraalVMNativeImagePlugin)
+  .disablePlugins(PlayLayoutPlugin)
+  .settings(graalSettings)
 
 scalaVersion := "2.12.10"
 
 libraryDependencies ++= Seq(
-  "org.graalvm.sdk" % "graal-sdk" % "19.2.0.1",
-  "com.github.vmencik" %% "graal-akka-http" % "0.4.1",
-  "com.github.vmencik" %% "graal-akka-slf4j" % "0.4.1"
+  "org.graalvm.sdk" % "graal-sdk" % "19.2.0.1"
 )
+
+//excludeDependencies ++= Seq(
+//  ExclusionRule("ch.qos.logback", "logback-classic")
+//)
 
 scalacOptions ++= Seq(
   "-deprecation", // Emit warning and location for usages of deprecated APIs.
@@ -65,22 +95,12 @@ scalacOptions in (Compile, console) ~= (_.filterNot(
   Set(
     "-Ywarn-unused:imports",
     "-Xfatal-warnings"
-  )))
-
-javaOptions += "-Xmx12G"
+  )
+))
 
 scalacOptions in (Test, compile) ~= (_.filterNot(
   Set(
     "-Ywarn-unused:imports",
     "-Xfatal-warnings"
-  )))
-
-graalVMNativeImageOptions ++= Seq(
-  "-H:IncludeResources=.*\\.conf",
-  "--initialize-at-build-time",
-  "--initialize-at-run-time=" +
-    "com.typesafe.config.impl.ConfigImpl$EnvVariablesHolder," +
-    "com.typesafe.config.impl.ConfigImpl$SystemPropertiesHolder",
-  "--no-fallback",
-  "--allow-incomplete-classpath"
-)
+  )
+))
